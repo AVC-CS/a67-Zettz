@@ -1,0 +1,106 @@
+name: GitHub Classroom Workflow
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  repository_dispatch:
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1) Compile check 10 pts
+      - name: Compile tests.cpp (compile check)
+        id: compile_tests
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Compile tests.cpp (compile check)"
+          setup-command: make clean
+          command: g++ -std=c++17 -Wall -Wextra main.cpp -o main && timeout 10 ./main
+          timeout: 30
+          max-score: 10
+
+      # 2) T1 — 15 pts
+      - name: Basic test [T1]
+        id: t1
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Basic test [T1]"
+          setup-command: make clean
+          command: make test ARGS="[T1]"
+          timeout: 30
+          max-score: 15
+
+      # 3) T2 — 15 pts
+      - name: T2 test
+        id: t2
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "T2 test"
+          command: make test ARGS="[T2]"
+          timeout: 30
+          max-score: 15
+
+      # 4) T3 — 15 pts
+      - name: T3 test
+        id: t3
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "T3 test"
+          command: make test ARGS="[T3]"
+          timeout: 30
+          max-score: 15
+
+      # 5) T4 — 15 pts
+      - name: T4 test
+        id: t4
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "T4 test"
+          command: make test ARGS="[T4]"
+          timeout: 30
+          max-score: 15
+
+      # 6) T5 — 15 pts
+      - name: T5 test
+        id: t5
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "T5 test"
+          command: make test ARGS="[T5]"
+          timeout: 30
+          max-score: 15
+
+      # 7) T6 — 15 pts
+      - name: T6 test
+        id: t6
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "T6 test"
+          command: make test ARGS="[T6]"
+          timeout: 30
+          max-score: 15
+
+      # Reporter
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          COMPILE_TESTS_RESULTS: "${{ steps.compile_tests.outputs.result }}"
+          T1_RESULTS: "${{ steps.t1.outputs.result }}"
+          T2_RESULTS: "${{ steps.t2.outputs.result }}"
+          T3_RESULTS: "${{ steps.t3.outputs.result }}"
+          T4_RESULTS: "${{ steps.t4.outputs.result }}"
+          T5_RESULTS: "${{ steps.t5.outputs.result }}"
+          T6_RESULTS: "${{ steps.t6.outputs.result }}"
+        with:
+          runners: compile_tests,t1,t2,t3,t4,t5,t6
